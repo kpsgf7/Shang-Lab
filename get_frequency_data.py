@@ -1,21 +1,28 @@
+# by Zhengyu Li
+# get time stamps from transcripts
+# write in one file
+
 def main():
     # import libraries
-     import re
+  import re
      # import sys
-     import os
-     import glob
+  import os
+  import glob
      #import csv
      #import datetime
 
    # Read all txt files
-     path = '/venv/'
+  path = '/venv/'
     # writeto= open('diction')
-     from os.path import isfile
-     files = filter(isfile,glob.glob('%s/*'%path))
+     #from os.path import isfile
+     #files = filter(isfile,glob.glob('%s/*'%path))
 
-     files_text = [i for i in files if i.endswith(''.txt)]
-     print(files_text)
-
+    # files_text = [i for i in files if i.endswith(''.txt)]
+    # print(files_text)
+  for filename in glob.glob('*.txt'):
+     resultfname = filename[:-4]
+     resultfname += ".csv"
+     print(resultfname)
     # initialize variables
      ct = 0
      minp = 0;secondp = 0;msp = 0
@@ -38,23 +45,29 @@ def main():
      c = ""
      flag = ''
      pausetype = ''
-     fname = "test_1.txt"
-     # open output file & instruction
-     resultFile = open("test_1.csv", "w+")
-     resultFile.write("This file includes time frequency data of transcript.\n")
-     resultFile.write("This file has the same name to transcript, and name extension is 'csv'(transcript name extension is '.txt')\n")
-     resultFile.write("Each row is one round. Each round starts at a salesperson, and end at the next salesperson\n")
-     resultFile.write("1th column is talking time of salesperson\n")
-     resultFile.write("2th column is time of last pause of each round\n")
-     resultFile.write("3th column is talking time of customer\n")
-     resultFile.write("4th column is time of all pauses except for the last pause within each round\n")
-     resultFile.write("5th column is crosstalk type#1 C -> C\n")
-     resultFile.write("6th column is crosstalk type#2 C -> S\n")
-     resultFile.write("7th column is crosstalk type#3 S -> C\n")
-     resultFile.write("8th column is crosstalk type#4 S -> S\n")
-     resultFile.write("9th column is crosstalk type#5 S -> END\n\n")
+     #fname = "test_1.txt"
+   # open output file & instruction
+     fname = filename
+     resultfname = filename[:-4]
+     resultfname += ".csv"
+     #resultFile = open(resultfname, "w+") # write into separate files
+     resultFile =  open("time_stamp.csv", "a+")
+     resultFile.write("call_ID,round,Salesperson,endPause,pauses,customer,crosstalk1,crosstalk2,crosstalk3,crosstalk4,crosstalk5\n")
+     # resultFile.write("This file includes time frequency data of transcript.\n")
+     # resultFile.write("This file has the same name to transcript, and name extension is 'csv'(transcript name extension is '.txt')\n")
+     # resultFile.write("Each row is one round. Each round starts at a salesperson, and end at the next salesperson\n")
+     # resultFile.write("1th column is talking time of salesperson\n")
+     # resultFile.write("2th column is time of last pause of each round\n")
+     # resultFile.write("3th column is talking time of customer\n")
+     # resultFile.write("4th column is time of all pauses except for the last pause within each round\n")
+     # resultFile.write("5th column is crosstalk type#1 C -> C\n")
+     # resultFile.write("6th column is crosstalk type#2 C -> S\n")
+     # resultFile.write("7th column is crosstalk type#3 S -> C\n")
+     # resultFile.write("8th column is crosstalk type#4 S -> S\n")
+     # resultFile.write("9th column is crosstalk type#5 S -> END\n\n")
     # open transcript
     # getting index of each turn with identify (R,S,C,[)
+
      with open(fname, "r") as f:
         for line1 in f:
             if (line1.find("*inaudible*") != -1):
@@ -93,6 +106,7 @@ def main():
                     time = re.findall('\[(.*?)\]', line)
                     time1 = " ".join(time)
                     # get start time
+            #        print(time1)
                     min = time1[0:2]
                     second = time1[3:5]
                     ms = time1[6:9]
@@ -210,18 +224,20 @@ def main():
                         seconddiff = seconddiff - 1
                     # print information at the end of each round
                     if (minp != 0 and secondp != 0 and msp != 0 and pausetype == "#p:"):
-                        resultFile.write(" %s%02d:%02d:%03d " % ("#p:", pausemin, pausesecond, pausems))
-                        resultFile.write(" %s%02d:%02d:%03d " % ("#P1:", p1m, p1s, p1ms))
-                        resultFile.write(" %s%02d:%02d:%03d " % ("#C:", cmindiff, cseconddiff, cmsdiff))
-                        resultFile.write(" %s%02d:%02d:%03d " % ("#CR1 ", ct1mindiff, ct1seconddiff, ct1msdiff))
-                        resultFile.write(" %s%02d:%02d:%03d " % ("#CR2 ", ct2mindiff, ct2seconddiff, ct2msdiff))
-                        resultFile.write(" %s%02d:%02d:%03d " % ("#CR3 ", ct3mindiff, ct3seconddiff, ct3msdiff))
-                        resultFile.write(" %s%02d:%02d:%03d " % ("#CR4 ", ct4mindiff, ct4seconddiff, ct4msdiff))
-                        resultFile.write(" %s%02d:%02d:%03d \n" % ("#CR5 ", ct5mindiff, ct5seconddiff, ct5msdiff))
+                        resultFile.write("%02d:%02d.%03d," % ( pausemin, pausesecond, pausems))
+                        resultFile.write("%02d:%02d.%03d," % ( p1m, p1s, p1ms))
+                        resultFile.write("%02d:%02d.%03d," % ( cmindiff, cseconddiff, cmsdiff))
+                        resultFile.write("%02d:%02d.%03d," % ( ct1mindiff, ct1seconddiff, ct1msdiff))
+                        resultFile.write("%02d:%02d.%03d," % ( ct2mindiff, ct2seconddiff, ct2msdiff))
+                        resultFile.write("%02d:%02d.%03d," % ( ct3mindiff, ct3seconddiff, ct3msdiff))
+                        resultFile.write("%02d:%02d.%03d," % ( ct4mindiff, ct4seconddiff, ct4msdiff))
+                        resultFile.write("%02d:%02d.%03d,\n" % ( ct5mindiff, ct5seconddiff, ct5msdiff))
                     # print information at the beginning of each round
+
                     if (c == "#S:"):
                         round = round + 1
-                        resultFile.write("%d %s%02d:%02d:%03d " % (round,"#S:", mindiff, seconddiff, msdiff))
+                        resultFile.write("%s," % (fname))
+                        resultFile.write("%d,%02d:%02d.%03d," % (round, mindiff, seconddiff, msdiff))
                     # After calculating in this round, save time data as previous time data
                     minp = min1
                     secondp = second1
@@ -242,14 +258,14 @@ def main():
                     # done with each round, go to the next round
                     break
      # print information at the end of the file
-     resultFile.write(" %s%02d:%02d:%03d " % ("#p:", 0, 0, 0))
-     resultFile.write(" %s%02d:%02d:%03d " % ("#P1:", pausemin, pausesecond, pausems))
-     resultFile.write(" %s%02d:%02d:%03d " % ("#C:", cmindiff, cseconddiff, cmsdiff))
-     resultFile.write(" %s%02d:%02d:%03d " % ("#CR1 ", ct1mindiff, ct1seconddiff, ct1msdiff))
-     resultFile.write(" %s%02d:%02d:%03d " % ("#CR2 ", ct2mindiff, ct2seconddiff, ct2msdiff))
-     resultFile.write(" %s%02d:%02d:%03d " % ("#CR3 ", ct3mindiff, ct3seconddiff, ct3msdiff))
-     resultFile.write(" %s%02d:%02d:%03d " % ("#CR4 ", ct4mindiff, ct4seconddiff, ct4msdiff))
-     resultFile.write(" %s%02d:%02d:%03d \n" % ("#CR5 ", ct5mindiff, ct5seconddiff, ct5msdiff))
+     resultFile.write("%02d:%02d.%03d," % ( 0, 0, 0))
+     resultFile.write("%02d:%02d.%03d," % ( pausemin, pausesecond, pausems))
+     resultFile.write("%02d:%02d.%03d," % ( cmindiff, cseconddiff, cmsdiff))
+     resultFile.write("%02d:%02d.%03d," % ( ct1mindiff, ct1seconddiff, ct1msdiff))
+     resultFile.write("%02d:%02d.%03d," % ( ct2mindiff, ct2seconddiff, ct2msdiff))
+     resultFile.write("%02d:%02d.%03d," % ( ct3mindiff, ct3seconddiff, ct3msdiff))
+     resultFile.write("%02d:%02d.%03d," % ( ct4mindiff, ct4seconddiff, ct4msdiff))
+     resultFile.write("%02d:%02d.%03d,\n" % ( ct5mindiff, ct5seconddiff, ct5msdiff))
      f.close()
      resultFile.close()
 main()
